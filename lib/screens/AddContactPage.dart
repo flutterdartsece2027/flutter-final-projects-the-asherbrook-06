@@ -62,12 +62,17 @@ class _AddContactPageState extends State<AddContactPage> {
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
-    final userDoc = _firestore.collection('users').doc(currentUser.uid);
-    final contactRef = userDoc.collection('contacts').doc(contact.uid);
+    final userDocRef = _firestore.collection('users').doc(currentUser.uid);
 
-    final snapshot = await contactRef.get();
-    if (!snapshot.exists) {
-      await contactRef.set(contact.toMap());
+    // Get current contacts list
+    final userSnapshot = await userDocRef.get();
+    final userData = userSnapshot.data();
+
+    List<dynamic> contacts = userData?['contacts'] ?? [];
+
+    if (!contacts.contains(contact.uid)) {
+      contacts.add(contact.uid);
+      await userDocRef.update({'contacts': contacts});
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -105,9 +110,7 @@ class _AddContactPageState extends State<AddContactPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = (View.of(context).platformDispatcher.platformBrightness == Brightness.light)
-        ? "light"
-        : "dark";
+    final theme = (View.of(context).platformDispatcher.platformBrightness == Brightness.light) ? "light" : "dark";
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
@@ -146,15 +149,9 @@ class _AddContactPageState extends State<AddContactPage> {
                                 const Expanded(child: SizedBox()),
                                 SvgPicture.asset("assets/$theme/add_contact.svg", width: 220),
                                 const SizedBox(height: 24),
-                                Text(
-                                  "No contacts found",
-                                  style: Theme.of(context).textTheme.headlineSmall,
-                                ),
+                                Text("No contacts found", style: Theme.of(context).textTheme.headlineSmall),
                                 const SizedBox(height: 4),
-                                Text(
-                                  "Try a different name or email",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
+                                Text("Try a different name or email", style: Theme.of(context).textTheme.bodyMedium),
                                 const Expanded(child: SizedBox()),
                               ],
                             ),
@@ -169,15 +166,9 @@ class _AddContactPageState extends State<AddContactPage> {
                                 const Expanded(child: SizedBox()),
                                 SvgPicture.asset("assets/$theme/add_contact.svg", width: 220),
                                 const SizedBox(height: 24),
-                                Text(
-                                  "Add a Contact",
-                                  style: Theme.of(context).textTheme.headlineSmall,
-                                ),
+                                Text("Add a Contact", style: Theme.of(context).textTheme.headlineSmall),
                                 const SizedBox(height: 4),
-                                Text(
-                                  "Search them with email",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
+                                Text("Search them with email", style: Theme.of(context).textTheme.bodyMedium),
                                 const Expanded(child: SizedBox()),
                               ],
                             ),
@@ -226,10 +217,7 @@ class SliverSearchBar extends SliverPersistentHeaderDelegate {
           fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           hintText: 'Search by email...',
           prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
