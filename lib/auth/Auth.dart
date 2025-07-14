@@ -34,15 +34,12 @@ class Auth {
   /// Register user with email and password
   Future<void> register(BuildContext context, String name, String email, String password) async {
     try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       User? user = credential.user;
       if (user != null) {
         await storeUserDataToFirestore(user, name);
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (context) => false);
       }
     } catch (e) {
       debugPrint('Register error: $e');
@@ -54,7 +51,7 @@ class Auth {
   Future<void> login(BuildContext context, String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (context) => false);
     } catch (e) {
       debugPrint('Login error: $e');
       _showError(context, 'Login failed.');
@@ -64,17 +61,14 @@ class Auth {
   /// Logout the user
   Future<void> logout(BuildContext context) async {
     await _auth.signOut();
-    Navigator.pushReplacementNamed(context, '/welcome');
+      Navigator.pushNamedAndRemoveUntil(context, '/welcome', (context) => false);
   }
 
   /// Edit user's profile (name and about)
   Future<void> editProfile(String name, String about) async {
     final uid = _auth.currentUser?.uid;
     if (uid != null) {
-      await _firestore.collection('users').doc(uid).update({
-        'name': name,
-        'about': about,
-      });
+      await _firestore.collection('users').doc(uid).update({'name': name, 'about': about});
     }
   }
 
@@ -92,9 +86,7 @@ class Auth {
         await ref.putFile(image);
         String downloadURL = await ref.getDownloadURL();
 
-        await _firestore.collection('users').doc(uid).update({
-          'profilePic': downloadURL,
-        });
+        await _firestore.collection('users').doc(uid).update({'profilePic': downloadURL});
       }
     } catch (e) {
       debugPrint('Profile picture update failed: $e');
@@ -113,14 +105,12 @@ class Auth {
       'profilePic': '',
       'contacts': [],
       'calls': [],
-      'Updates': {'documentURL': ''}
+      'Updates': {'documentURL': ''},
     });
   }
 
   /// Show error using snackbar
   void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
   }
 }
