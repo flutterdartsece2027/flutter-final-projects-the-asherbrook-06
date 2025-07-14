@@ -22,6 +22,7 @@ class ContactCard extends StatelessWidget {
         title: Text(contactModel.name, style: Theme.of(context).textTheme.bodyLarge),
         subtitle: Text(
           contactModel.email,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),

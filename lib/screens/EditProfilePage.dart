@@ -75,87 +75,91 @@ class _EditProfilePageState extends State<EditProfilePage> {
           },
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.all(16),
-        margin: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _pickedImage != null
-                        ? FileImage(File(_pickedImage!.path))
-                        : (widget.user.profilePic != '' ? NetworkImage(widget.user.profilePic) : null),
-                    child: (_pickedImage == null && widget.user.profilePic == '')
-                        ? Icon(HugeIcons.strokeRoundedUser02, size: 48, color: Theme.of(context).colorScheme.onSurface)
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 4,
-                    child: Container(
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.primary),
-                      padding: const EdgeInsets.all(6),
-                      child: Icon(
-                        HugeIcons.strokeRoundedPen01,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        size: 18,
+      body: ListView(
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _pickedImage != null
+                            ? FileImage(File(_pickedImage!.path))
+                            : (widget.user.profilePic != '' ? NetworkImage(widget.user.profilePic) : null),
+                        child: (_pickedImage == null && widget.user.profilePic == '')
+                            ? Icon(HugeIcons.strokeRoundedUser02, size: 48, color: Theme.of(context).colorScheme.onSurface)
+                            : null,
                       ),
-                    ),
+                      Positioned(
+                        bottom: 0,
+                        right: 4,
+                        child: Container(
+                          decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.primary),
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(
+                            HugeIcons.strokeRoundedPen01,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.name,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    prefixIcon: Icon(HugeIcons.strokeRoundedUser02),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _aboutController,
+                  keyboardType: TextInputType.multiline,
+                  minLines: 1,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    labelText: 'About',
+                    prefixIcon: Icon(HugeIcons.strokeRoundedProfile02),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  enabled: false,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(HugeIcons.strokeRoundedMail01),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+                const SizedBox(height: 36),
+                ElevatedButton.icon(
+                  onPressed: _saveProfile,
+                  icon: const Icon(HugeIcons.strokeRoundedFloppyDisk),
+                  label: const Text("Save"),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _nameController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(HugeIcons.strokeRoundedUser02),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _aboutController,
-              keyboardType: TextInputType.multiline,
-              minLines: 1,
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: 'About',
-                prefixIcon: Icon(HugeIcons.strokeRoundedProfile02),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              enabled: false,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(HugeIcons.strokeRoundedMail01),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-            const SizedBox(height: 36),
-            ElevatedButton.icon(
-              onPressed: _saveProfile,
-              icon: const Icon(HugeIcons.strokeRoundedFloppyDisk),
-              label: const Text("Save"),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
