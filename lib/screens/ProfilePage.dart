@@ -103,11 +103,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             if (updated == true) {
                               final firebaseUser = await Auth().getCurrentUser(context);
-if (firebaseUser != null) {
-  final updatedUser = await contactsManager.getUserById(firebaseUser.uid);
-  setState(() => _user = updatedUser);
-}
-
+                              if (firebaseUser != null) {
+                                final updatedUser = await contactsManager.getUserById(firebaseUser.uid);
+                                setState(() => _user = updatedUser);
+                              }
                             }
                           },
                           child: Text("Edit Profile"),
@@ -132,7 +131,7 @@ if (firebaseUser != null) {
                       IconButton(
                         icon: Icon(HugeIcons.strokeRoundedUserAdd02),
                         onPressed: () async {
-                          await Navigator.pushNamed(context, '/addContacts');
+                          await Navigator.pushNamed(context, '/addContact');
                           await _loadContacts();
                         },
                       ),
@@ -157,19 +156,48 @@ if (firebaseUser != null) {
                                 Navigator.pushNamed(context, '/chat', arguments: chat);
                               },
                             ),
-
                             PopupMenuItem<String>(
                               value: 'edit',
                               child: Text('Edit'),
                               onTap: () async {
-                                // TODO: Edit Contact
+                                // TODO: Verify Funtionality
+                                final updated = await Navigator.pushNamed(
+                                  context,
+                                  '/editContact',
+                                  arguments: contacts[index],
+                                );
+
+                                if (updated == true) {
+                                  await _loadContacts();
+                                }
                               },
                             ),
                             PopupMenuItem<String>(
                               value: 'delete',
                               child: Text('Delete'),
                               onTap: () async {
-                                // TODO: Delete Contact
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Delete Contact'),
+                                    content: Text('Are you sure you want to delete this contact?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel')),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: Text(
+                                          'Delete',
+                                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  await contactsManager.removeContact(_user!.uid, contacts[index].uid);
+                                  await _loadContacts();
+                                }
                               },
                             ),
                           ],
