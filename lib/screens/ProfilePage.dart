@@ -132,7 +132,7 @@ if (firebaseUser != null) {
                       IconButton(
                         icon: Icon(HugeIcons.strokeRoundedUserAdd02),
                         onPressed: () async {
-                          // TODO: Add Contact
+                          await Navigator.pushNamed(context, '/addContacts');
                           await _loadContacts();
                         },
                       ),

@@ -50,8 +50,7 @@ class _NewBroadcastPageState extends State<NewBroadcastPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       filteredContacts = contacts.where((contact) {
-        return contact!.name.toLowerCase().contains(query) ||
-            contact.email.toLowerCase().contains(query);
+        return contact!.name.toLowerCase().contains(query) || contact.email.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -87,7 +86,7 @@ class _NewBroadcastPageState extends State<NewBroadcastPage> {
             icon: Icon(HugeIcons.strokeRoundedUserAdd02),
             onPressed: () async {
               if (_currentUser != null) {
-                // TODO: Add New Contacts Page
+                await Navigator.pushNamed(context, '/addContact');
                 await _refreshContacts();
               }
             },

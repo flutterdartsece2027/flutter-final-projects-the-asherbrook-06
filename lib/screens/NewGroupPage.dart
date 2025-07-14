@@ -87,7 +87,8 @@ class _NewGroupPageState extends State<NewGroupPage> {
             icon: Icon(HugeIcons.strokeRoundedUserAdd02),
             onPressed: () async {
               if (_currentUser != null) {
-                // TODO: Add Contacts
+                await Navigator.pushNamed(context, '/addContact');
+                await _refreshContacts();
               }
             },
           ),
