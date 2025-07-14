@@ -52,7 +52,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         email: widget.user.email,
         about: _aboutController.text.trim(),
         phoneNumber: widget.user.phoneNumber,
-        profilePic: _pickedImage!.path,
+        profilePic: _pickedImage != null ? _pickedImage!.path : widget.user.profilePic,
         contacts: widget.user.contacts,
         calls: widget.user.calls,
         updates: widget.user.updates,
@@ -98,14 +98,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ? FileImage(File(_pickedImage!.path))
                             : (widget.user.profilePic != '' ? NetworkImage(widget.user.profilePic) : null),
                         child: (_pickedImage == null && widget.user.profilePic == '')
-                            ? Icon(HugeIcons.strokeRoundedUser02, size: 48, color: Theme.of(context).colorScheme.onSurface)
+                            ? Icon(
+                                HugeIcons.strokeRoundedUser02,
+                                size: 48,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              )
                             : null,
                       ),
                       Positioned(
                         bottom: 0,
                         right: 4,
                         child: Container(
-                          decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.primary),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                           padding: const EdgeInsets.all(6),
                           child: Icon(
                             HugeIcons.strokeRoundedPen01,
