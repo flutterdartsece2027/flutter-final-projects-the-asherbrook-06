@@ -149,7 +149,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           itemBuilder: (context) => [
                             PopupMenuItem<String>(
                               value: 'chat',
-                              child: Text('Chat'),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(HugeIcons.strokeRoundedBubbleChat, color: Theme.of(context).colorScheme.primary),
+                                  SizedBox(width: 16),
+                                  Text('Chat'),
+                                ],
+                              ),
                               onTap: () async {
                                 final chat = await chatController.getChatById(contacts[index].uid);
                                 if (!mounted) return;
@@ -157,24 +164,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               },
                             ),
                             PopupMenuItem<String>(
-                              value: 'edit',
-                              child: Text('Edit'),
-                              onTap: () async {
-                                // TODO: Verify Funtionality
-                                final updated = await Navigator.pushNamed(
-                                  context,
-                                  '/editContact',
-                                  arguments: contacts[index],
-                                );
-
-                                if (updated == true) {
-                                  await _loadContacts();
-                                }
-                              },
-                            ),
-                            PopupMenuItem<String>(
                               value: 'delete',
-                              child: Text('Delete'),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(HugeIcons.strokeRoundedDelete01, color: Theme.of(context).colorScheme.error),
+                                  SizedBox(width: 16),
+                                  Text('Delete'),
+                                ],
+                              ),
                               onTap: () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
