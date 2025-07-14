@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "340853803097",
+    "firebase_url": "https://app-asher-chat-default-rtdb.firebaseio.com",
+    "project_id": "app-asher-chat",
+    "storage_bucket": "app-asher-chat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340853803097:android:8d501c5b5391dd6e810948",
+        "android_client_info": {
+          "package_name": "app.asher.buzz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340853803097-8rg0rgkrek3n1j6hjtlek6871hl66qsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjDXmuaO36VdVUzwCDe_vf9iBMvE6_SpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340853803097-8rg0rgkrek3n1j6hjtlek6871hl66qsb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "340853803097-hcng68nbdaenlrpmr3jtcv3pguhrfbco.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.asher.chat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
