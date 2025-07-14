@@ -237,5 +237,5 @@ class SliverSearchBar extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(covariant SliverSearchBar oldDelegate) => false;
+  bool shouldRebuild(covariant SliverSearchBar oldDelegate) => true;
 }
