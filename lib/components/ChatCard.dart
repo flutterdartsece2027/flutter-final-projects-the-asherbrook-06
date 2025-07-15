@@ -27,18 +27,18 @@ class _ChatCardState extends State<ChatCard> {
   final UserController _userController = UserController();
   final ChatController _chatController = ChatController();
   late Future<String> displayNameFuture;
+  late Future<String?> profilePicFuture;
 
   @override
   void initState() {
     super.initState();
     displayNameFuture = _getDisplayName();
+    profilePicFuture = _getProfilePictureURL();
   }
 
   Future<String> _getDisplayName() async {
     if (widget.chatModel.isGroup || widget.chatModel.isBroadcast) {
-      if (widget.chatModel.displayName.isNotEmpty) {
-        return widget.chatModel.displayName;
-      }
+      if (widget.chatModel.displayName.isNotEmpty) return widget.chatModel.displayName;
 
       List<String> memberNames = [];
 
@@ -54,11 +54,26 @@ class _ChatCardState extends State<ChatCard> {
     for (String uid in widget.chatModel.members) {
       if (uid != widget.currentUserId) {
         UserModel? contact = await _userController.getUserById(uid);
-        return contact!.name;
+        return contact?.name ?? "Unknown";
       }
     }
 
     return "Unknown";
+  }
+
+  Future<String?> _getProfilePictureURL() async {
+    if (widget.chatModel.isGroup || widget.chatModel.isBroadcast) {
+      return widget.chatModel.profilePicURL;
+    }
+
+    for (String uid in widget.chatModel.members) {
+      if (uid != widget.currentUserId) {
+        UserModel? contact = await _userController.getUserById(uid);
+        return contact?.profilePic;
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -70,12 +85,7 @@ class _ChatCardState extends State<ChatCard> {
       onLongPress: () async {
         await showMenu(
           context: context,
-          position: RelativeRect.fromLTRB(
-            tapPosition.dx,
-            tapPosition.dy,
-            tapPosition.dx,
-            tapPosition.dy,
-          ),
+          position: RelativeRect.fromLTRB(tapPosition.dx, tapPosition.dy, tapPosition.dx, tapPosition.dy),
           items: [
             PopupMenuItem(
               child: const Text("View Profile"),
@@ -93,10 +103,7 @@ class _ChatCardState extends State<ChatCard> {
                       showCloseIcon: true,
                       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       closeIconColor: Theme.of(context).colorScheme.onSurface,
-                      content: Text(
-                        "Chat history cleared",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                      ),
+                      content: Text("Chat history cleared", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ),
                   );
                 });
@@ -112,10 +119,7 @@ class _ChatCardState extends State<ChatCard> {
                       showCloseIcon: true,
                       closeIconColor: Theme.of(context).colorScheme.onSurface,
                       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      content: Text(
-                        "Chat deleted",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                      ),
+                      content: Text("Chat deleted", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ),
                   );
                 });
@@ -124,10 +128,11 @@ class _ChatCardState extends State<ChatCard> {
           ],
         );
       },
-      child: FutureBuilder<String>(
-        future: displayNameFuture,
+      child: FutureBuilder<List<dynamic>>(
+        future: Future.wait([displayNameFuture, profilePicFuture]),
         builder: (context, snapshot) {
-          final displayName = snapshot.data ?? "Loading...";
+          final displayName = snapshot.hasData ? snapshot.data![0] as String : "Loading...";
+          final profilePicURL = snapshot.hasData ? snapshot.data![1] as String? : null;
 
           return ListTile(
             tileColor: Theme.of(context).colorScheme.surfaceContainer,
@@ -143,13 +148,15 @@ class _ChatCardState extends State<ChatCard> {
                 : _buildMessagePreview(),
             leading: ProfilePicture(
               radius: 24,
-              imageURL: widget.chatModel.profilePicURL,
+              imageURL: profilePicURL!,
               isGroup: widget.chatModel.isGroup,
               isBroadcast: widget.chatModel.isBroadcast,
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text(DateFormat.jm().format(widget.chatModel.lastMessageTime.toDate()))],
+              children: [
+                Text(DateFormat.jm().format(widget.chatModel.lastMessageTime.toDate())),
+              ],
             ),
             onTap: () {
               Navigator.pushNamed(context, '/chat', arguments: widget.chatModel);
@@ -172,9 +179,7 @@ class _ChatCardState extends State<ChatCard> {
           String sender = snapshot.data?.name ?? "Someone";
           return Text(
             "$sender: ${widget.chatModel.lastMessage}",
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
           );
         },
       );
@@ -182,9 +187,7 @@ class _ChatCardState extends State<ChatCard> {
 
     return Text(
       "$senderPrefix${widget.chatModel.lastMessage}",
-      style: Theme.of(
-        context,
-      ).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
     );
   }
 }
