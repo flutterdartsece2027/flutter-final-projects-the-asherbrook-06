@@ -213,7 +213,7 @@ class _ChatPageState extends State<ChatPage> {
                       if (message['sender'] != prevSender) {
                         showSenderName = true;
                         for (final user in members) {
-                          if (user != null && user.email == message['sender']) {
+                          if (user != null && user.uid == message['sender']) {
                             senderName = user.name;
                             break;
                           }
