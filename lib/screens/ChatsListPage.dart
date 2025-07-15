@@ -1,7 +1,5 @@
 // packages
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:svg_flutter/svg.dart';
 
