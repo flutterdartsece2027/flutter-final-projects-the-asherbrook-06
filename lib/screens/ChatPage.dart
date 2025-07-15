@@ -1,4 +1,5 @@
 // packages
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:svg_flutter/svg_flutter.dart';
@@ -6,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 // screens
 import 'package:buzz/components/CameraScreen.dart';
@@ -20,8 +22,9 @@ import 'package:buzz/models/User.dart';
 import 'package:buzz/models/Chat.dart';
 
 // components
-import '../components/IconButtonWithSubtitle.dart';
-import '../components/ProfilePicture.dart';
+import 'package:buzz/components/IconButtonWithSubtitle.dart';
+import 'package:buzz/components/ProfilePicture.dart';
+import 'package:buzz/components/ShimmerMessage.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.chat});
@@ -37,9 +40,12 @@ class _ChatPageState extends State<ChatPage> {
   final UserController _userController = UserController();
   final ChatController _chatController = ChatController();
   late Stream<QuerySnapshot> _messageStream;
-  List<UserModel?> members = [];
+
+  List<Map<String, dynamic>> _uploadingMessages = [];
   String? _editingMessageId;
   bool _isEditing = false;
+
+  List<UserModel?> members = [];
   late bool _isAdmin;
 
   void getMembers() async {
@@ -197,117 +203,124 @@ class _ChatPageState extends State<ChatPage> {
                 final messages = snapshot.data!.docs;
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
-                  itemCount: messages.length,
+                  itemCount: _uploadingMessages.length + messages.length,
                   itemBuilder: (context, index) {
-                    final message = messages[index].data() as Map<String, dynamic>;
-                    final isMe = message['sender'] == _chatController.currentUserId;
+                    // Show shimmer messages first
+                    if (index < messages.length) {
+                      final message = messages[index].data() as Map<String, dynamic>;
+                      final isMe = message['sender'] == _chatController.currentUserId;
 
-                    // Determine whether to show the sender's name
-                    bool showSenderName = false;
-                    String? senderName;
+                      // Determine whether to show the sender's name
+                      bool showSenderName = false;
+                      String? senderName;
 
-                    if (widget.chat.isGroup || widget.chat.isBroadcast) {
-                      final prevSender = index > 0
-                          ? (messages[index - 1].data() as Map<String, dynamic>)['sender']
-                          : null;
-                      if (message['sender'] != prevSender) {
-                        showSenderName = true;
-                        for (final user in members) {
-                          if (user != null && user.uid == message['sender']) {
-                            senderName = user.name;
-                            break;
+                      if (widget.chat.isGroup || widget.chat.isBroadcast) {
+                        final prevSender = index > 0
+                            ? (messages[index - 1].data() as Map<String, dynamic>)['sender']
+                            : null;
+                        if (message['sender'] != prevSender) {
+                          showSenderName = true;
+                          for (final user in members) {
+                            if (user != null && user.uid == message['sender']) {
+                              senderName = user.name;
+                              break;
+                            }
                           }
                         }
                       }
-                    }
-                    return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          if (showSenderName && senderName != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(senderName, style: Theme.of(context).textTheme.labelMedium),
-                            ),
-                          GestureDetector(
-                            onLongPress: isMe
-                                ? () async {
-                                    final selected = await showMenu<String>(
-                                      context: context,
-                                      // TODO: Adjust Positioning
-                                      position: RelativeRect.fromLTRB(100, 300, 0, 0),
-                                      items: const [
-                                        PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                        PopupMenuItem(value: 'unsend', child: Text('Unsend')),
-                                      ],
-                                    );
-
-                                    if (selected == 'edit' && message['type'] == 'text') {
-                                      setState(() {
-                                        _isEditing = true;
-                                        _editingMessageId = messages[index].id;
-                                        _messageController.text = message['text'] ?? '';
-                                      });
-                                    } else if (selected == 'unsend') {
-                                      await _chatController.unsendMessage(widget.chat.chatID, messages[index].id);
-                                    }
-                                  }
-                                : null,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                              decoration: BoxDecoration(
-                                color: isMe
-                                    ? Theme.of(context).colorScheme.primaryContainer
-                                    : Theme.of(context).colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(8),
+                      return Align(
+                        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            if (showSenderName && senderName != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(senderName, style: Theme.of(context).textTheme.labelMedium),
                               ),
-                              child: () {
-                                final type = message['messageType'];
-                                final url = message['url'] ?? '';
-                                switch (type) {
-                                  case 'text':
-                                    return Text(
-                                      message['text'] ?? '[Unsupported]',
-                                      style: Theme.of(context).textTheme.bodyMedium,
-                                    );
-                                  case 'image':
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(url, width: MediaQuery.of(context).size.width * 0.6),
-                                    );
-                                  case 'file':
-                                    final fileName = Uri.decodeFull(Uri.parse(url).pathSegments.last).split('/').last;
-                                    return GestureDetector(
-                                      onTap: () => launchUrl(Uri.parse(url)),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(HugeIcons.strokeRoundedFile01, size: 20),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              fileName,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                decoration: TextDecoration.underline,
+                            GestureDetector(
+                              onLongPress: isMe
+                                  ? () async {
+                                      final selected = await showMenu<String>(
+                                        context: context,
+                                        // TODO: Adjust Positioning
+                                        position: RelativeRect.fromLTRB(100, 300, 0, 0),
+                                        items: const [
+                                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                          PopupMenuItem(value: 'unsend', child: Text('Unsend')),
+                                        ],
+                                      );
+
+                                      if (selected == 'edit' && message['type'] == 'text') {
+                                        setState(() {
+                                          _isEditing = true;
+                                          _editingMessageId = messages[index].id;
+                                          _messageController.text = message['text'] ?? '';
+                                        });
+                                      } else if (selected == 'unsend') {
+                                        await _chatController.unsendMessage(widget.chat.chatID, messages[index].id);
+                                      }
+                                    }
+                                  : null,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: isMe
+                                      ? Theme.of(context).colorScheme.primaryContainer
+                                      : Theme.of(context).colorScheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: () {
+                                  final type = message['messageType'];
+                                  final url = message['url'] ?? '';
+                                  switch (type) {
+                                    case 'text':
+                                      return Text(
+                                        message['text'] ?? '[Unsupported]',
+                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      );
+                                    case 'image':
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(url, width: MediaQuery.of(context).size.width * 0.6),
+                                      );
+                                    case 'file':
+                                      final fileName = Uri.decodeFull(Uri.parse(url).pathSegments.last).split('/').last;
+                                      return GestureDetector(
+                                        onTap: () => launchUrl(Uri.parse(url)),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(HugeIcons.strokeRoundedFile01, size: 20),
+                                            SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                fileName,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                  decoration: TextDecoration.underline,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  default:
-                                    return Text('[Unsupported Message Type]');
-                                }
-                              }(),
+                                          ],
+                                        ),
+                                      );
+                                    default:
+                                      return Text('[Unsupported Message Type]');
+                                  }
+                                }(),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                          ],
+                        ),
+                      );
+                    } else {
+                      final shimmerIndex = index - messages.length;
+                      final upload = _uploadingMessages[shimmerIndex];
+                      return ShimmerMessage(context: context, isMe: true, type: upload['type']);
+                    }
                   },
                 );
               },
@@ -380,9 +393,51 @@ class _ChatPageState extends State<ChatPage> {
                                                     onTap: () async {
                                                       final result = await FilePicker.platform.pickFiles();
                                                       if (result != null && result.files.single.path != null) {
-                                                        // final file = File(result.files.single.path!);
-                                                        // TODO: Send Media Files
                                                         Navigator.pop(context);
+
+                                                        final path = result.files.single.path!;
+                                                        final fileName = result.files.single.name;
+
+                                                        final ref = FirebaseStorage.instance
+                                                            .ref()
+                                                            .child('chat_files')
+                                                            .child(widget.chat.chatID)
+                                                            .child(fileName);
+
+                                                        setState(() {
+                                                          _uploadingMessages.add({'type': 'file'});
+                                                        });
+
+                                                        final uploadTask = await ref.putFile(File(path));
+                                                        final downloadUrl = await ref.getDownloadURL();
+
+                                                        setState(() {
+                                                          _uploadingMessages.removeAt(0);
+                                                        });
+
+                                                        await _chatController
+                                                            .getMessages(widget.chat.chatID)
+                                                            .doc()
+                                                            .set({
+                                                              'messageID': ref.name,
+                                                              'status': 'sent',
+                                                              'sender': _chatController.currentUserId,
+                                                              'isEdited': false,
+                                                              'replyTo': '',
+                                                              'text': '',
+                                                              'url': downloadUrl,
+                                                              'messageType': 'file',
+                                                              'sentAt': Timestamp.now(),
+                                                            });
+
+                                                        await FirebaseFirestore.instance
+                                                            .collection('chats')
+                                                            .doc(widget.chat.chatID)
+                                                            .update({
+                                                              'lastMessage': '[File]',
+                                                              'lastMessageSender': _chatController.currentUserId,
+                                                              'lastMessageTime': Timestamp.now(),
+                                                            });
                                                       }
                                                     },
                                                   ),
