@@ -1,4 +1,5 @@
 // packages
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _saveProfile() async {
+    String profileImageUrl = widget.user.profilePic;
+
+    // Upload image if a new one is selected
+    if (_pickedImage != null) {
+      final storageRef = FirebaseStorage.instance.ref().child('users/${widget.user.uid}/ProfilePicture.jpg');
+
+      final file = File(_pickedImage!.path);
+
+      try {
+        await storageRef.putFile(file);
+        profileImageUrl = await storageRef.getDownloadURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image upload failed: $e')));
+        return;
+      }
+    }
+
     await contactManager.updateUser(
       UserModel(
         uid: widget.user.uid,
@@ -52,7 +70,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         email: widget.user.email,
         about: _aboutController.text.trim(),
         phoneNumber: widget.user.phoneNumber,
-        profilePic: _pickedImage != null ? _pickedImage!.path : widget.user.profilePic,
+        profilePic: profileImageUrl,
         contacts: widget.user.contacts,
         calls: widget.user.calls,
         updates: widget.user.updates,
