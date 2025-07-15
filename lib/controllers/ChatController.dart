@@ -33,15 +33,13 @@ class ChatController {
 
   /// Get a Stream of Chats for a User
   Stream<List<Chat>>? getChatsOverviewStream(String userID) {
-    return _chats
-        .where('members', arrayContains: userID)
-        .orderBy('lastMessageTime', descending: true)
-        .snapshots()
-        .map((querySnapshot) {
-          return querySnapshot.docs.map((doc) {
-            return Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-          }).toList();
-        });
+    return _chats.where('members', arrayContains: userID).orderBy('lastMessageTime', descending: true).snapshots().map((
+      querySnapshot,
+    ) {
+      return querySnapshot.docs.map((doc) {
+        return Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    });
   }
 
   /// Create Chat
@@ -61,10 +59,7 @@ class ChatController {
 
   /// Get a Chat Stream of a Chat
   Stream<Chat> chatStream(String chatID) {
-    return _chats
-        .doc(chatID)
-        .snapshots()
-        .map((doc) => Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>));
+    return _chats.doc(chatID).snapshots().map((doc) => Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>));
   }
 
   /// Subcollection: Messages
@@ -125,10 +120,6 @@ class ChatController {
     return getMessages(chatID)
         .orderBy('sentAt', descending: true)
         .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((doc) => Message.fromMap(doc.id, doc.data() as Map<String, dynamic>))
-              .toList(),
-        );
+        .map((snap) => snap.docs.map((doc) => Message.fromMap(doc.id, doc.data() as Map<String, dynamic>)).toList());
   }
 }

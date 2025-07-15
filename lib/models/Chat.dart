@@ -46,15 +46,15 @@ class Chat {
   }
 
   Map<String, dynamic> toMap() => {
-        'members': members,
-        'admins': admins,
-        'displayName': displayName,
-        'profilePicURL': profilePicURL,
-        'isGroup': isGroup,
-        'isBroadcast': isBroadcast,
-        'createdAt': createdAt,
-        'lastMessage': lastMessage,
-        'lastMessageTime': lastMessageTime,
-        'lastMessageSender': lastMessageSender,
-      };
+    'members': members,
+    'admins': admins,
+    'displayName': displayName,
+    'profilePicURL': profilePicURL,
+    'isGroup': isGroup,
+    'isBroadcast': isBroadcast,
+    'createdAt': createdAt,
+    'lastMessage': lastMessage,
+    'lastMessageTime': lastMessageTime,
+    'lastMessageSender': lastMessageSender,
+  };
 }

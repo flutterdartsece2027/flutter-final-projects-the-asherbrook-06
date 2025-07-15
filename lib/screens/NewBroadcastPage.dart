@@ -124,11 +124,11 @@ class _NewBroadcastPageState extends State<NewBroadcastPage> {
 
                 if (broadcastName != null && broadcastName.isNotEmpty && _currentUser != null) {
                   try {
-                    final chatID = 'broadcast_${_currentUser!.uid}_${DateTime.now().millisecondsSinceEpoch}';
+                    final docRef = FirebaseFirestore.instance.collection('chats').doc();
+                    final chatID = docRef.id;
 
-                    // Prepare member UIDs
                     final recipientUIDs = recipients.map((u) => u!.uid).toList();
-                    recipientUIDs.add(_currentUser!.uid); // Include current user
+                    recipientUIDs.add(_currentUser!.uid);
 
                     // Create broadcast chat
                     final newBroadcastChat = Chat(

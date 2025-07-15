@@ -112,12 +112,17 @@ class _NewChatPageState extends State<NewChatPage> {
                 final selectedUser = _filteredContacts[selectedIndex!];
                 if (selectedUser == null || _currentUser == null) return;
 
-                // Generate unique chatID based on sorted UID pair
                 final members = [_currentUser!.uid, selectedUser.uid]..sort();
-                final chatID = members.join('_');
 
-                // Check if chat already exists
-                final existingChat = await chatController.getChatById(chatID);
+                // Check if a chat already exists between the two users
+                final existingChats = await chatController.getChatsForUser(_currentUser!.uid);
+                final existingChat = existingChats.cast<Chat?>().firstWhere(
+                  (chat) =>
+                      !chat!.isGroup &&
+                      chat.members.toSet().containsAll(members) &&
+                      chat.members.length == members.length,
+                  orElse: () => null,
+                );
 
                 if (existingChat != null) {
                   if (context.mounted) {
@@ -126,6 +131,10 @@ class _NewChatPageState extends State<NewChatPage> {
                   }
                   return;
                 }
+
+                // Auto-generate new chatID
+                final docRef = FirebaseFirestore.instance.collection('chats').doc();
+                final chatID = docRef.id;
 
                 // Create new Chat
                 final newChat = Chat(

@@ -127,8 +127,8 @@ class _NewGroupPageState extends State<NewGroupPage> {
                   try {
                     final ChatController chatController = ChatController();
 
-                    // Generate group chat ID using timestamp and user UID
-                    final chatID = 'group_${_currentUser!.uid}_${DateTime.now().millisecondsSinceEpoch}';
+                    final docRef = FirebaseFirestore.instance.collection('chats').doc();
+                    final chatID = docRef.id;
 
                     // Prepare member UIDs
                     final memberUIDs = groupMembers.map((u) => u.uid).toList();
