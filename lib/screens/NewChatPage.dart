@@ -121,7 +121,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
                 if (existingChat != null) {
                   if (context.mounted) {
-                    // TODO: pop until '/dashboard'
+                    Navigator.popUntil(context, ModalRoute.withName('/dashboard'));
                     Navigator.pushNamed(context, '/chat', arguments: existingChat);
                   }
                   return;
@@ -145,7 +145,7 @@ class _NewChatPageState extends State<NewChatPage> {
                 await chatController.createChat(newChat);
 
                 if (context.mounted) {
-                  // TODO: pop until '/dashboard'
+                  Navigator.popUntil(context, ModalRoute.withName('/dashboard'));
                   Navigator.pushNamed(context, '/chat', arguments: newChat);
                 }
               },
