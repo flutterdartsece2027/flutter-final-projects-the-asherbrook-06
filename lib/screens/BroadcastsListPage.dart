@@ -16,14 +16,14 @@ import 'package:buzz/controllers/ChatController.dart';
 import 'package:buzz/models/User.dart';
 import 'package:buzz/models/Chat.dart';
 
-class ChatsListPage extends StatefulWidget {
-  const ChatsListPage({super.key});
+class BroadcastsListPage extends StatefulWidget {
+  const BroadcastsListPage({super.key});
 
   @override
-  State<ChatsListPage> createState() => _ChatsListPageState();
+  State<BroadcastsListPage> createState() => _BroadcastsListPageState();
 }
 
-class _ChatsListPageState extends State<ChatsListPage> {
+class _BroadcastsListPageState extends State<BroadcastsListPage> {
   final TextEditingController _searchController = TextEditingController();
   final UserController _userController = UserController();
   final ChatController _chatController = ChatController();
@@ -70,7 +70,7 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   Future<void> _refreshChats() async {
     final updatedChats = await _chatController.getChatsForUser(currentUserId);
-    final filtered = updatedChats.where((chat) => !chat.isGroup && !chat.isBroadcast).toList();
+    final filtered = updatedChats.where((chat) => chat.isGroup && chat.isBroadcast).toList();
     setState(() {
       _chats = filtered;
       _filteredChats = _searchController.text.isEmpty ? _chats : _filteredChats;
@@ -131,7 +131,7 @@ class _ChatsListPageState extends State<ChatsListPage> {
         color: Theme.of(context).colorScheme.onSurface,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         child: StreamBuilder<List<Chat>>(
-          stream: _chatController.getChatsOverviewStream(currentUserId, false, false),
+          stream: _chatController.getChatsOverviewStream(currentUserId, true, true),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -141,7 +141,7 @@ class _ChatsListPageState extends State<ChatsListPage> {
               return _buildEmptyState(context, theme, hasChats: false);
             }
 
-            _chats = snapshot.data!.toList();
+            _chats = snapshot.data!.where((chat) => chat.isGroup && chat.isBroadcast).toList();
             _filteredChats = _searchController.text.isEmpty ? _chats : _filteredChats;
 
             return CustomScrollView(
@@ -178,12 +178,12 @@ class _ChatsListPageState extends State<ChatsListPage> {
           SvgPicture.asset("assets/$theme/begin_chat.svg", width: 220),
           const SizedBox(height: 24),
           Text(
-            hasChats ? "No chats found" : "It's a bit lonely in here",
+            hasChats ? "No Broadcasts found" : "It's a bit lonely in here",
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 4),
           Text(
-            hasChats ? "Try a different name or email" : "Create a chat to get started",
+            hasChats ? "Try a different name or email" : "Create a broadcast to get started",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const Expanded(child: SizedBox()),
@@ -216,7 +216,7 @@ class SearchBar extends SliverPersistentHeaderDelegate {
           decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            hintText: 'Search chats...',
+            hintText: 'Search broadcasts...',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),

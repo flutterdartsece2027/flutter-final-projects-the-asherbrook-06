@@ -1,4 +1,6 @@
 // packages
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -32,14 +34,20 @@ class ChatController {
   }
 
   /// Get a Stream of Chats for a User
-  Stream<List<Chat>>? getChatsOverviewStream(String userID) {
-    return _chats.where('members', arrayContains: userID).orderBy('lastMessageTime', descending: true).snapshots().map((
-      querySnapshot,
-    ) {
-      return querySnapshot.docs.map((doc) {
-        return Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-      }).toList();
-    });
+  Stream<List<Chat>>? getChatsOverviewStream(String userID, bool isGroup, bool isBroadcast) {
+    return _chats
+        .where('members', arrayContains: userID)
+        .where('isGroup', isEqualTo: isGroup)
+        .where('isBroadcast', isEqualTo: isBroadcast)
+        .orderBy('lastMessageTime', descending: true)
+        .snapshots()
+        .map((querySnapshot) {
+          var query = querySnapshot.docs.map((doc) {
+            return Chat.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+          }).toList();
+          log(query.first.members.toString());
+          return query;
+        });
   }
 
   /// Create Chat

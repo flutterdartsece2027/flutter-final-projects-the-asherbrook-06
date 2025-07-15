@@ -3,9 +3,12 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 // Screens
+import 'package:buzz/screens/BroadcastsListPage.dart';
+import 'package:buzz/screens/GroupsListPage.dart';
 import 'package:buzz/screens/ChatsListPage.dart';
-import 'package:buzz/screens/CallsListPage.dart';
-import 'package:buzz/screens/UpdatesPage.dart';
+
+// components
+import '../components/GlobalSpeedDial.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -43,14 +46,14 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           dividerHeight: 0.5,
           tabs: [
             Tab(text: "Chats"),
-            Tab(text: "Updates"),
-            Tab(text: "Calls"),
+            Tab(text: "Groups"),
+            Tab(text: "Broadcasts"),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [ChatsListPage(), UpdatesPage(), CallsListPage()],
+        children: [ChatsListPage(), GroupsListPage(), BroadcastsListPage()],
       ),
     );
   }
