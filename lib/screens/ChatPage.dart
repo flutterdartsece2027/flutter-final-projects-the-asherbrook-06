@@ -82,28 +82,30 @@ class _ChatPageState extends State<ChatPage> {
               isBroadcast: widget.chat.isBroadcast,
             ),
             SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  (widget.chat.displayName.isNotEmpty)
-                      ? widget.chat.displayName
-                      : (members.isNotEmpty && members.last != null)
-                      ? members.last!.name
-                      : widget.chat.members.last,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                if (!widget.chat.isBroadcast && !widget.chat.isGroup)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Text(
-                    (members.isNotEmpty && members.last != null) ? members.last!.email : widget.chat.members.last,
+                    (widget.chat.displayName.isNotEmpty)
+                        ? widget.chat.displayName
+                        : (members.isNotEmpty && members.last != null)
+                        ? members.last!.name
+                        : widget.chat.members.last,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-              ],
+                  if (!widget.chat.isBroadcast && !widget.chat.isGroup)
+                    Text(
+                      (members.isNotEmpty && members.last != null) ? members.last!.email : widget.chat.members.last,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

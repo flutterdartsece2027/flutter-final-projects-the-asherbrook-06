@@ -1,9 +1,11 @@
 // packages
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 
 // models
+import 'package:buzz/models/Chat.dart';
 import 'package:buzz/models/User.dart';
 
 // controllers
@@ -27,7 +29,8 @@ class NewChatPage extends StatefulWidget {
 class _NewChatPageState extends State<NewChatPage> {
   final TextEditingController _searchController = TextEditingController();
   UserController contactsManager = UserController();
-  bool _isLoading = false;
+  ChatController chatController = ChatController();
+  final bool _isLoading = false;
 
   List<UserModel?> _filteredContacts = [];
   List<UserModel?> _contacts = [];
@@ -51,8 +54,7 @@ class _NewChatPageState extends State<NewChatPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredContacts = _contacts.where((contact) {
-        return contact!.name.toLowerCase().contains(query) ||
-            contact.email.toLowerCase().contains(query);
+        return contact!.name.toLowerCase().contains(query) || contact.email.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -72,9 +74,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = (View.of(context).platformDispatcher.platformBrightness == Brightness.light)
-        ? "light"
-        : "dark";
+    final theme = (View.of(context).platformDispatcher.platformBrightness == Brightness.light) ? "light" : "dark";
 
     return Scaffold(
       appBar: AppBar(
@@ -83,16 +83,10 @@ class _NewChatPageState extends State<NewChatPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("New Chat"),
-            Text(
-              "${_filteredContacts.length} contacts",
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
+            Text("${_filteredContacts.length} contacts", style: Theme.of(context).textTheme.labelMedium),
           ],
         ),
-        leading: IconButton(
-          icon: Icon(HugeIcons.strokeRoundedArrowLeft01),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: IconButton(icon: Icon(HugeIcons.strokeRoundedArrowLeft01), onPressed: () => Navigator.pop(context)),
         actions: [
           IconButton(
             icon: Icon(HugeIcons.strokeRoundedUserAdd02),
@@ -111,8 +105,43 @@ class _NewChatPageState extends State<NewChatPage> {
               elevation: 1,
               child: Icon(HugeIcons.strokeRoundedSent),
               onPressed: () async {
-                // TODO: Create Chat
-                if (context.mounted) Navigator.pop(context);
+                final selectedUser = _filteredContacts[selectedIndex!];
+                if (selectedUser == null || _currentUser == null) return;
+
+                // Generate unique chatID based on sorted UID pair
+                final members = [_currentUser!.uid, selectedUser.uid]..sort();
+                final chatID = members.join('_');
+
+                // Check if chat already exists
+                final existingChat = await chatController.getChatById(chatID);
+
+                if (existingChat != null) {
+                  if (context.mounted) {
+                    Navigator.pushNamed(context, '/chat', arguments: existingChat);
+                  }
+                  return;
+                }
+
+                // Create new Chat
+                final newChat = Chat(
+                  admins: [],
+                  isGroup: false,
+                  chatID: chatID,
+                  displayName: '',
+                  lastMessage: '',
+                  members: members,
+                  profilePicURL: "",
+                  isBroadcast: false,
+                  lastMessageSender: '',
+                  createdAt: Timestamp.now(),
+                  lastMessageTime: Timestamp.now(),
+                );
+
+                await chatController.createChat(newChat);
+
+                if (context.mounted) {
+                  Navigator.pushNamed(context, '/chat', arguments: newChat);
+                }
               },
             ),
       body: (_isLoading)
@@ -141,15 +170,9 @@ class _NewChatPageState extends State<NewChatPage> {
                               const Expanded(child: SizedBox()),
                               SvgPicture.asset("assets/$theme/add_contact.svg", width: 220),
                               const SizedBox(height: 24),
-                              Text(
-                                "No contacts found",
-                                style: Theme.of(context).textTheme.headlineSmall,
-                              ),
+                              Text("No contacts found", style: Theme.of(context).textTheme.headlineSmall),
                               const SizedBox(height: 4),
-                              Text(
-                                "Try a different name or email",
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
+                              Text("Try a different name or email", style: Theme.of(context).textTheme.bodyMedium),
                               const Expanded(child: SizedBox()),
                             ],
                           ),
@@ -159,8 +182,7 @@ class _NewChatPageState extends State<NewChatPage> {
                         contactModel: _filteredContacts[index]!,
                         onTap: () {
                           setState(() {
-                            if (selectedIndex != null &&
-                                selectedIndex! < _filteredContacts.length) {
+                            if (selectedIndex != null && selectedIndex! < _filteredContacts.length) {
                               _filteredContacts[selectedIndex!]!.isSelected = false;
                             }
                             if (selectedIndex == index) {
@@ -203,10 +225,7 @@ class _SearchBar extends SliverPersistentHeaderDelegate {
           hintText: "Search contacts...",
           filled: true,
           fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),

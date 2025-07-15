@@ -160,6 +160,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               onTap: () async {
                                 final chat = await chatController.getChatById(contacts[index].uid);
                                 if (!mounted) return;
+                                // TODO: Create/Fetch New Chat
+                                // TODO: Validate Function
                                 Navigator.pushNamed(context, '/chat', arguments: chat);
                               },
                             ),

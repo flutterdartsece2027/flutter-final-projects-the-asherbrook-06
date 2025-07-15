@@ -1,4 +1,6 @@
 // packages
+import 'dart:developer';
+
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -30,7 +32,7 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  Map<String, UserModel?> _contactsMap = {};
+  final Map<String, UserModel?> _contactsMap = {};
   List<Chat> _filteredChats = [];
   List<Chat> _chats = [];
 
@@ -43,15 +45,11 @@ class _ChatsListPageState extends State<ChatsListPage> {
 
   Future<void> _initializeData() async {
     final userContacts = await _userController.getContactsList(currentUserId);
-
     final contactsMap = <String, UserModel?>{};
+
     for (var userId in userContacts) {
       contactsMap[userId] = await _userController.getUserById(userId);
     }
-
-    setState(() {
-      _contactsMap = contactsMap;
-    });
   }
 
   void _filterChats() {
@@ -64,8 +62,7 @@ class _ChatsListPageState extends State<ChatsListPage> {
         final matchesMember = chat.members.any((uid) {
           final contact = _contactsMap[uid];
           if (contact == null) return false;
-          return contact.name.toLowerCase().contains(query) ||
-              contact.email.toLowerCase().contains(query);
+          return contact.name.toLowerCase().contains(query) || contact.email.toLowerCase().contains(query);
         });
 
         return matchesDisplayName || matchesMember;
@@ -221,10 +218,7 @@ class SearchBar extends SliverPersistentHeaderDelegate {
             filled: true,
             fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             hintText: 'Search chats...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
