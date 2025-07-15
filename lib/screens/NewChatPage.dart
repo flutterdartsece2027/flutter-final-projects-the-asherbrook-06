@@ -14,7 +14,6 @@ import 'package:buzz/controllers/ChatController.dart';
 
 // components
 import 'package:buzz/components/ContactCard.dart';
-import 'package:svg_flutter/svg.dart';
 
 // auth
 import 'package:buzz/auth/Auth.dart';
@@ -30,7 +29,7 @@ class _NewChatPageState extends State<NewChatPage> {
   final TextEditingController _searchController = TextEditingController();
   UserController contactsManager = UserController();
   ChatController chatController = ChatController();
-  final bool _isLoading = false;
+  bool _isLoading = false;
 
   List<UserModel?> _filteredContacts = [];
   List<UserModel?> _contacts = [];
@@ -38,15 +37,20 @@ class _NewChatPageState extends State<NewChatPage> {
   int? selectedIndex;
 
   Future<void> _refreshContacts() async {
-    final user = await contactsManager.getUserById((await Auth().getCurrentUser(context))!.uid);
+    setState(() {
+      _isLoading = true;
+    });
 
+    final user = await contactsManager.getUserById((await Auth().getCurrentUser(context))!.uid);
     final fetchedContacts = await Future.wait(
       user!.contacts.map((uid) async => await contactsManager.getUserById(uid)).toList(),
     );
+
     setState(() {
       _currentUser = user;
       _contacts = fetchedContacts;
       _filteredContacts = fetchedContacts;
+      _isLoading = false;
     });
   }
 
@@ -117,6 +121,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
                 if (existingChat != null) {
                   if (context.mounted) {
+                    // TODO: pop until '/dashboard'
                     Navigator.pushNamed(context, '/chat', arguments: existingChat);
                   }
                   return;
@@ -140,6 +145,7 @@ class _NewChatPageState extends State<NewChatPage> {
                 await chatController.createChat(newChat);
 
                 if (context.mounted) {
+                  // TODO: pop until '/dashboard'
                   Navigator.pushNamed(context, '/chat', arguments: newChat);
                 }
               },
