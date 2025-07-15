@@ -408,7 +408,7 @@ class _ChatPageState extends State<ChatPage> {
                                                           _uploadingMessages.add({'type': 'file'});
                                                         });
 
-                                                        final uploadTask = await ref.putFile(File(path));
+                                                        await ref.putFile(File(path));
                                                         final downloadUrl = await ref.getDownloadURL();
 
                                                         setState(() {
