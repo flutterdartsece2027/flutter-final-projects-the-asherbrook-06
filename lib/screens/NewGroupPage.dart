@@ -1,9 +1,11 @@
 // packages
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:svg_flutter/svg.dart';
 
 // models
+import 'package:buzz/models/Chat.dart';
 import 'package:buzz/models/User.dart';
 
 // controllers
@@ -124,10 +126,34 @@ class _NewGroupPageState extends State<NewGroupPage> {
                 if (groupName != null && groupName.isNotEmpty && _currentUser != null) {
                   try {
                     final ChatController chatController = ChatController();
-                    // TODO: Create Group
+
+                    // Generate group chat ID using timestamp and user UID
+                    final chatID = 'group_${_currentUser!.uid}_${DateTime.now().millisecondsSinceEpoch}';
+
+                    // Prepare member UIDs
+                    final memberUIDs = groupMembers.map((u) => u.uid).toList();
+                    memberUIDs.add(_currentUser!.uid); // Add current user too
+
+                    // Create group chat
+                    final newGroupChat = Chat(
+                      admins: [_currentUser!.uid],
+                      isGroup: true,
+                      chatID: chatID,
+                      displayName: groupName,
+                      lastMessage: '',
+                      members: memberUIDs,
+                      profilePicURL: '',
+                      isBroadcast: false,
+                      lastMessageSender: '',
+                      createdAt: Timestamp.now(),
+                      lastMessageTime: Timestamp.now(),
+                    );
+
+                    await chatController.createChat(newGroupChat);
 
                     if (!mounted) return;
-                    Navigator.pop(context);
+                    Navigator.popUntil(context, ModalRoute.withName('/dashboard'));
+                    Navigator.pushNamed(context, '/chat', arguments: newGroupChat);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create group: $e')));
                   }
