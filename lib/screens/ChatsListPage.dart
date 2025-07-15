@@ -88,44 +88,6 @@ class _ChatsListPageState extends State<ChatsListPage> {
     final theme = Theme.of(context).brightness == Brightness.light ? "light" : "dark";
 
     return Scaffold(
-      floatingActionButton: SpeedDial(
-        icon: HugeIcons.strokeRoundedPlusSign,
-        activeIcon: HugeIcons.strokeRoundedCancel01,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimaryContainer),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        buttonSize: const Size.square(48),
-        elevation: 2,
-        renderOverlay: false,
-        children: [
-          SpeedDialChild(
-            child: Icon(HugeIcons.strokeRoundedBubbleChat),
-            label: 'New Chat',
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            onTap: () async {
-              await Navigator.pushNamed(context, '/newChat');
-              _refreshChats();
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(HugeIcons.strokeRoundedUserGroup02),
-            label: 'New Group',
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            onTap: () async {
-              await Navigator.pushNamed(context, '/newGroup');
-              _refreshChats();
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(HugeIcons.strokeRoundedMegaphone02),
-            label: 'New Broadcast',
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            onTap: () async {
-              await Navigator.pushNamed(context, '/newBroadcast');
-              _refreshChats();
-            },
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: _refreshChats,
         color: Theme.of(context).colorScheme.onSurface,
