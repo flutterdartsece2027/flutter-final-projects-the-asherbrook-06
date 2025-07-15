@@ -39,11 +39,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   cameras = await availableCameras();
 
-  runApp(const Linker());
+  runApp(const Buzz());
 }
 
-class Linker extends StatelessWidget {
-  const Linker({super.key});
+class Buzz extends StatelessWidget {
+  const Buzz({super.key});
 
   @override
   Widget build(BuildContext context) {
