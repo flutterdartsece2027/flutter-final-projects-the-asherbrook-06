@@ -12,7 +12,6 @@ import 'package:buzz/models/Chat.dart';
 import 'package:buzz/controllers/UserController.dart';
 import 'package:buzz/components/ProfilePicture.dart';
 
-// TODO: modify this page
 class ChatInfoPage extends StatefulWidget {
   const ChatInfoPage({super.key, required this.chat});
 
@@ -61,12 +60,6 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             onPressed: () {
               Navigator.of(context).popUntil((route) => route.settings.name == '/dashboard');
               Navigator.of(context).pushNamed('/chat', arguments: widget.chat);
-            },
-          ),
-          IconButton(
-            icon: Icon(HugeIcons.strokeRoundedCall02),
-            onPressed: () {
-              // TODO: Call Actions
             },
           ),
         ],

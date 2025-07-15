@@ -17,6 +17,4 @@ class StorageController {
     await ref.putFile(file);
     return await ref.getDownloadURL();
   }
-
-  // TODO: Add more: About uploads, document uploads, etc.
 }

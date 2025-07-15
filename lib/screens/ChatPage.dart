@@ -41,7 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   final ChatController _chatController = ChatController();
   late Stream<QuerySnapshot> _messageStream;
 
-  List<Map<String, dynamic>> _uploadingMessages = [];
+  final List<Map<String, dynamic>> _uploadingMessages = [];
   String? _editingMessageId;
   bool _isEditing = false;
 
@@ -124,13 +124,6 @@ class _ChatPageState extends State<ChatPage> {
           },
         ),
         actions: [
-          if (!widget.chat.isBroadcast)
-            IconButton(
-              icon: Icon(HugeIcons.strokeRoundedCall02),
-              onPressed: () {
-                // TODO: Implement Call Functionality
-              },
-            ),
           PopupMenuButton(
             icon: Icon(HugeIcons.strokeRoundedMoreVertical),
             itemBuilder: (context) => [

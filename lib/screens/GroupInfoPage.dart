@@ -83,13 +83,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               Navigator.of(context).pushNamed('/chat', arguments: widget.chat);
             },
           ),
-          if (widget.chat.isGroup && !widget.chat.isBroadcast)
-            IconButton(
-              icon: Icon(HugeIcons.strokeRoundedCall02),
-              onPressed: () {
-                // TODO: Call Actions
-              },
-            ),
         ],
       ),
       body: ListView(
