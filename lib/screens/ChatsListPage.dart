@@ -1,6 +1,4 @@
 // packages
-import 'dart:developer';
-
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hugeicons/hugeicons.dart';
