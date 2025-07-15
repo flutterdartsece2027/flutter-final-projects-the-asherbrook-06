@@ -148,7 +148,7 @@ class _ChatCardState extends State<ChatCard> {
                 : _buildMessagePreview(),
             leading: ProfilePicture(
               radius: 24,
-              imageURL: profilePicURL!,
+              imageURL: profilePicURL ?? '',
               isGroup: widget.chatModel.isGroup,
               isBroadcast: widget.chatModel.isBroadcast,
             ),
