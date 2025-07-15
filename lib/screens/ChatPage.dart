@@ -57,8 +57,10 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _messageStream = FirebaseFirestore.instance
-        .collection('chats/${widget.chat.chatID}/messages')
-        .orderBy('timestamp')
+        .collection('chats')
+        .doc(widget.chat.chatID)
+        .collection('messages')
+        .orderBy('sentAt')
         .snapshots();
 
     _isAdmin = widget.chat.admins.any((UID) => UID == _chatController.currentUserId);
@@ -198,7 +200,7 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index].data() as Map<String, dynamic>;
-                    final isMe = message['sender'] == _chatController.currentUserEmail;
+                    final isMe = message['sender'] == _chatController.currentUserId;
 
                     // Determine whether to show the sender's name
                     bool showSenderName = false;
@@ -262,7 +264,7 @@ class _ChatPageState extends State<ChatPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: () {
-                                final type = message['type'];
+                                final type = message['messageType'];
                                 final url = message['url'] ?? '';
                                 switch (type) {
                                   case 'text':
