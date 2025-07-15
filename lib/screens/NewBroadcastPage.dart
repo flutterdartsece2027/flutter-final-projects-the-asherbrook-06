@@ -1,9 +1,11 @@
 // packages
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter/material.dart';
 import 'package:svg_flutter/svg.dart';
 
 // models
+import 'package:buzz/models/Chat.dart';
 import 'package:buzz/models/User.dart';
 
 // controllers
@@ -14,7 +16,7 @@ import 'package:buzz/controllers/ChatController.dart';
 import 'package:buzz/components/ContactCard.dart';
 
 // auth
-import '../auth/Auth.dart';
+import 'package:buzz/auth/Auth.dart';
 
 class NewBroadcastPage extends StatefulWidget {
   const NewBroadcastPage({super.key});
@@ -122,7 +124,32 @@ class _NewBroadcastPageState extends State<NewBroadcastPage> {
 
                 if (broadcastName != null && broadcastName.isNotEmpty && _currentUser != null) {
                   try {
-                    // TODO: Create Broadcasts
+                    final chatID = 'broadcast_${_currentUser!.uid}_${DateTime.now().millisecondsSinceEpoch}';
+
+                    // Prepare member UIDs
+                    final recipientUIDs = recipients.map((u) => u!.uid).toList();
+                    recipientUIDs.add(_currentUser!.uid); // Include current user
+
+                    // Create broadcast chat
+                    final newBroadcastChat = Chat(
+                      admins: [_currentUser!.uid],
+                      isGroup: true,
+                      isBroadcast: true,
+                      chatID: chatID,
+                      displayName: broadcastName,
+                      lastMessage: '',
+                      members: recipientUIDs,
+                      profilePicURL: '',
+                      lastMessageSender: '',
+                      createdAt: Timestamp.now(),
+                      lastMessageTime: Timestamp.now(),
+                    );
+
+                    await _chatController.createChat(newBroadcastChat);
+
+                    if (!mounted) return;
+                    Navigator.popUntil(context, ModalRoute.withName('/dashboard'));
+                    Navigator.pushNamed(context, '/chat', arguments: newBroadcastChat);
 
                     if (!mounted) return;
                     Navigator.pop(context);
