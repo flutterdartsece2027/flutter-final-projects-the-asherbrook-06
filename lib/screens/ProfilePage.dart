@@ -68,6 +68,12 @@ class _ProfilePageState extends State<ProfilePage> {
         leading: IconButton(icon: Icon(HugeIcons.strokeRoundedArrowLeft01), onPressed: () => Navigator.pop(context)),
         actions: [
           IconButton(
+            icon: Icon(HugeIcons.strokeRoundedSettings02),
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          IconButton(
             icon: Icon(HugeIcons.strokeRoundedLogout01, color: Theme.of(context).colorScheme.error),
             onPressed: _handleLogout,
           ),
