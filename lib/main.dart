@@ -1,7 +1,7 @@
 // packages
 import 'package:firebase_core/firebase_core.dart';
 import 'package:buzz/screens/SettingsPage.dart';
-import 'package:hive_flutter/hive_flutter.dart'; // Import hive_flutter
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -24,7 +24,7 @@ import 'package:buzz/screens/LoginPage.dart';
 import 'package:buzz/screens/ChatPage.dart';
 
 // providers
-import 'package:buzz/provider/ThemeProvider.dart'; // Import provider
+import 'package:buzz/provider/ThemeProvider.dart';
 
 // themes
 import 'package:buzz/themes/theme.dart';
