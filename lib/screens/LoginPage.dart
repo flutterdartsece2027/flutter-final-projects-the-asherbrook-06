@@ -75,8 +75,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 validator: (value) {
                   if (value!.isEmpty) return "Password cannot be empty";
-                  if (value.length < 6 && value.length > 16) {
-                    return "Password should have 4 to 16 characters";
+                  if (value.length < 6 || value.length > 16) {
+                    return "Password should have 6 to 16 characters";
                   }
                   return null;
                 },
