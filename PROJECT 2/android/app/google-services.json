@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1066573293903",
+    "project_id": "app-asher-fixit",
+    "storage_bucket": "app-asher-fixit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066573293903:android:aeb0eac8cb4893073a7d3a",
+        "android_client_info": {
+          "package_name": "app.asher.fixit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjxGN990C5xOgyE-0SpronHJwPmhUYOrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
